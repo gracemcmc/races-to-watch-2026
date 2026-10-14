@@ -6,10 +6,10 @@ let currentFilter = 'ALL';
 
 // DOM Elements
 const board = document.getElementById('board');
-const lastUpdatedEl = document.getElementById('lastUpdated');
 const pageSubtitleEl = document.getElementById('pageSubtitle');
 const viewBtns = document.querySelectorAll('.view-btn');
 const filterBtns = document.querySelectorAll('.filter-btn');
+
 
 // Load data
 async function loadData() {
@@ -17,24 +17,9 @@ async function loadData() {
     const response = await fetch('races.json?v=' + Date.now());
     const data = await response.json();
     races = data.races;
-    lastUpdatedEl.textContent = formatDate(data.lastUpdated);
-    if (data.subtitle) {
-      pageSubtitleEl.textContent = data.subtitle;
-    }
-
-    // Try to load election results
-    try {
-      const resultsResponse = await fetch('results.json?v=' + Date.now());
-      if (resultsResponse.ok) {
-        resultsData = await resultsResponse.json();
-        updateResultsTimestamp();
-        console.log(`Loaded results: ${Object.keys(resultsData.races).length} races`);
-      }
-    } catch (e) {
-      console.log('No results data available');
-    }
-
+   
     renderBoard();
+
   } catch (error) {
     console.error('Error loading race data:', error);
     board.innerHTML = `
@@ -53,183 +38,6 @@ const CORS_PROXIES = [
   url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
 ];
 
-function buildNcsbeContestName(title, party) {
-  const code = party === 'Republican' ? 'REP' : 'DEM';
-
-  if (title.includes('U.S. Senate')) return [`US SENATE - ${code} (VOTE FOR 1)`];
-
-  const congMatch = title.match(/(\d+)\w* Congressional District/);
-  if (congMatch) {
-    const dist = congMatch[1].padStart(2, '0');
-    return [`US HOUSE OF REPRESENTATIVES DISTRICT ${dist} - ${code} (VOTE FOR 1)`];
-  }
-
-  // Combined race like "Senate District 9 / House District 4"
-  if (title.includes('/')) {
-    const names = [];
-    const senMatch = title.match(/Senate District (\d+)/);
-    const houseMatch = title.match(/House District (\d+)/);
-    if (senMatch) names.push(`NC STATE SENATE DISTRICT ${senMatch[1].padStart(2, '0')} - ${code} (VOTE FOR 1)`);
-    if (houseMatch) names.push(`NC HOUSE OF REPRESENTATIVES DISTRICT ${houseMatch[1].padStart(3, '0')} - ${code} (VOTE FOR 1)`);
-    return names;
-  }
-
-  const senMatch = title.match(/Senate District (\d+)/);
-  if (senMatch) return [`NC STATE SENATE DISTRICT ${senMatch[1].padStart(2, '0')} - ${code} (VOTE FOR 1)`];
-
-  const houseMatch = title.match(/House District (\d+)/);
-  if (houseMatch) return [`NC HOUSE OF REPRESENTATIVES DISTRICT ${houseMatch[1].padStart(3, '0')} - ${code} (VOTE FOR 1)`];
-
-  const coaMatch = title.match(/Court of Appeals Judge Seat (\d+)/);
-  if (coaMatch) return [`NC COURT OF APPEALS JUDGE SEAT ${coaMatch[1].padStart(2, '0')} - ${code} (VOTE FOR 1)`];
-
-  return null;
-}
-
-function extractLastName(name) {
-  const cleaned = name.replace(/^(Rev\.|Dr\.|Mr\.|Mrs\.|Ms\.)\s+/, '');
-  const parts = cleaned.split(/\s+/);
-  const suffixes = ['jr.', 'sr.', 'ii', 'iii', 'iv', 'v'];
-  if (parts.length > 1 && suffixes.includes(parts[parts.length - 1].toLowerCase().replace('.', ''))) {
-    return parts[parts.length - 2].toUpperCase();
-  }
-  return parts[parts.length - 1].toUpperCase();
-}
-
-function matchCandidateName(ncsbeName, raceCandidates) {
-  const parts = ncsbeName.trim().split(/\s+/);
-  const suffixes = ['JR.', 'SR.', 'II', 'III', 'IV', 'V'];
-  let ncsbeLastName = parts[parts.length - 1].toUpperCase();
-  if (parts.length > 1 && suffixes.includes(ncsbeLastName)) {
-    ncsbeLastName = parts[parts.length - 2].toUpperCase();
-  }
-  const ncsbeFirstName = parts[0].toUpperCase();
-  const lastNameMatches = raceCandidates.filter(c => extractLastName(c.name) === ncsbeLastName);
-  if (lastNameMatches.length === 1) return lastNameMatches[0].name;
-  // Multiple candidates share a last name — match on first name too
-  if (lastNameMatches.length > 1) {
-    const firstAndLast = lastNameMatches.find(c => c.name.split(/\s+/)[0].toUpperCase() === ncsbeFirstName);
-    if (firstAndLast) return firstAndLast.name;
-  }
-  // Title-case the NCSBE name as fallback
-  return ncsbeName.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-}
-
-function parseNcsbeResults(ncsbeData) {
-  // Index by contest name
-  const byContest = {};
-  for (const row of ncsbeData) {
-    const cnm = row.cnm;
-    if (!byContest[cnm]) byContest[cnm] = [];
-    byContest[cnm].push(row);
-  }
-
-  const globalPrt = ncsbeData[0]?.prt || '0';
-  const globalPtl = ncsbeData[0]?.ptl || '0';
-
-  const output = {
-    lastUpdated: new Date().toISOString(),
-    precinctsReporting: `${globalPrt} of ${globalPtl}`,
-    races: {},
-  };
-
-  for (const race of races) {
-    const contestNames = buildNcsbeContestName(race.title, race.party);
-    if (!contestNames) continue;
-
-    for (const contestName of contestNames) {
-      const rows = byContest[contestName];
-      if (!rows) continue;
-
-      rows.sort((a, b) => parseInt(b.vct) - parseInt(a.vct));
-
-      const candidates = rows.map(row => ({
-        name: matchCandidateName(row.bnm, race.candidates),
-        votes: parseInt(row.vct),
-        percentage: parseFloat(row.pct),
-      }));
-
-      // For combined races, use sub-race key
-      let raceKey = race.title;
-      if (contestNames.length > 1) {
-        if (contestName.includes('STATE SENATE')) {
-          const m = contestName.match(/DISTRICT (\d+)/);
-          raceKey = `Senate District ${parseInt(m[1])} Republican Primary`;
-        } else if (contestName.includes('HOUSE OF REPRESENTATIVES')) {
-          const m = contestName.match(/DISTRICT (\d+)/);
-          raceKey = `House District ${parseInt(m[1])} Republican Primary`;
-        }
-      }
-
-      output.races[raceKey] = {
-        precinctsReporting: `${rows[0].prt} of ${rows[0].ptl}`,
-        candidates,
-      };
-    }
-  }
-
-  return output;
-}
-
-// Fetch live from NCSBE (trying CORS proxies) and update cards
-async function refreshResults() {
-  const btn = document.getElementById('refreshResultsBtn');
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = 'Updating...';
-  }
-
-  let fetched = false;
-  // First try direct fetch (works locally or if CORS allows)
-  const urls = [NCSBE_URL, ...CORS_PROXIES.map(p => p(NCSBE_URL))];
-
-  for (const url of urls) {
-    try {
-      const resp = await fetch(url);
-      if (resp.ok) {
-        const ncsbeData = await resp.json();
-        resultsData = parseNcsbeResults(ncsbeData);
-        updateResultsTimestamp();
-        renderBoard();
-        fetched = true;
-        console.log(`Fetched live results via ${url.substring(0, 40)}...`);
-        break;
-      }
-    } catch (e) {
-      console.log(`Proxy failed: ${url.substring(0, 40)}...`);
-    }
-  }
-
-  if (!fetched) {
-    // Fall back to local results.json
-    try {
-      const resp = await fetch('results.json?v=' + Date.now());
-      if (resp.ok) {
-        resultsData = await resp.json();
-        updateResultsTimestamp();
-        renderBoard();
-        console.log('Fell back to local results.json');
-      }
-    } catch (e) {
-      console.log('Could not load any results');
-    }
-  }
-
-  if (btn) {
-    btn.disabled = false;
-    btn.textContent = 'Update Results';
-  }
-}
-
-// Update the results timestamp display
-function updateResultsTimestamp() {
-  const el = document.getElementById('resultsTimestamp');
-  if (el && resultsData) {
-    const d = new Date(resultsData.lastUpdated);
-    el.textContent = `Results: ${d.toLocaleTimeString()} | ${resultsData.precinctsReporting} precincts`;
-    el.style.display = 'inline';
-  }
-}
 
 // Format date
 function formatDate(dateStr) {
@@ -257,69 +65,6 @@ function getRoleClass(role) {
   return 'candidate';
 }
 
-// Get results HTML for a race
-function getResultsHTML(race) {
-  if (!resultsData) return '';
-
-  // Look up results by race title
-  let raceResults = resultsData.races[race.title];
-
-  // For combined races, check sub-race keys
-  if (!raceResults && race.title.includes('/')) {
-    const parts = race.title.split('/').map(p => p.trim());
-    const subResults = [];
-    for (const part of parts) {
-      // Try matching partial title
-      for (const key of Object.keys(resultsData.races)) {
-        if (key.includes(part.replace(/ Republican Primaries?| Democratic Primaries?/i, '').trim())) {
-          subResults.push({ key, data: resultsData.races[key] });
-        }
-      }
-    }
-    if (subResults.length > 0) {
-      return subResults.map(({ key, data }) => renderResultsBlock(key, data, race)).join('');
-    }
-    return '';
-  }
-
-  if (!raceResults) return '';
-  return renderResultsBlock(null, raceResults, race);
-}
-
-function renderResultsBlock(subLabel, raceResults, race) {
-  const totalVotes = raceResults.candidates.reduce((sum, c) => sum + c.votes, 0);
-  const partyClass = race.party.toLowerCase();
-
-  const barsHTML = raceResults.candidates.map(c => {
-    const pctDisplay = (c.percentage * 100).toFixed(1);
-    const votesDisplay = c.votes.toLocaleString();
-    const isLeading = c === raceResults.candidates[0] && raceResults.candidates.length > 1;
-    return `
-      <div class="result-row ${isLeading ? 'leading' : ''}">
-        <div class="result-info">
-          <span class="result-name">${c.name}</span>
-          <span class="result-votes">${votesDisplay} votes (${pctDisplay}%)</span>
-        </div>
-        <div class="result-bar-track">
-          <div class="result-bar-fill ${partyClass}" style="width: ${pctDisplay}%"></div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  const labelHTML = subLabel ? `<div class="result-sublabel">${subLabel}</div>` : '';
-
-  return `
-    <div class="results-section">
-      ${labelHTML}
-      <div class="results-header">
-        <span class="results-label">Election Results</span>
-        <span class="results-precincts">${raceResults.precinctsReporting} precincts</span>
-      </div>
-      ${barsHTML}
-    </div>
-  `;
-}
 
 // Get expanded view type based on current view
 function getExpandedView() {
@@ -339,13 +84,8 @@ function createRaceCard(race) {
           <span class="candidate-name">${c.name}</span>
           <span class="candidate-role ${getRoleClass(c.role)}">${c.role}</span>
         </div>
-        <p class="candidate-desc">${c.description}</p>
       </div>
     `)
-    .join('');
-
-  const issuesHTML = race.keyIssues
-    .map(issue => `<span class="issue-tag">${issue}</span>`)
     .join('');
 
   // Convert fullText newlines to paragraphs
@@ -353,8 +93,7 @@ function createRaceCard(race) {
     ? race.fullText.split('\n\n').map(p => `<p>${p}</p>`).join('')
     : '';
 
-  const resultsHTML = getResultsHTML(race);
-
+  // TODO: figure out the party display here 
   return `
     <article class="race-card party-${partyClass} ${isHidden ? 'hidden' : ''}"
              data-party="${race.party}"
@@ -365,10 +104,9 @@ function createRaceCard(race) {
         <div class="card-info">
           <h3 class="card-title">${race.title}</h3>
           <div class="card-meta">
-            <span class="card-party ${partyClass}">${race.party}</span>
             <span class="card-type">${race.type}</span>
+            <span class="card-location">${race.location}</span>
           </div>
-          <div class="card-location">${race.location}</div>
         </div>
       </div>
 
@@ -376,26 +114,8 @@ function createRaceCard(race) {
         ${candidatesHTML}
       </div>
 
-      ${resultsHTML}
-
-      <p class="card-summary">${race.summary}</p>
-
       <div class="card-fulltext">
         ${fullTextHTML}
-      </div>
-
-      <div class="card-stakes">
-        <div class="card-stakes-label">Why It Matters</div>
-        ${race.stakes}
-      </div>
-
-      <div class="card-issues">
-        ${issuesHTML}
-      </div>
-
-      <div class="card-keyfact">
-        <div class="card-keyfact-label">Key Fact</div>
-        ${race.keyFact}
       </div>
 
       <button class="dive-deep-btn">Dive Deeper</button>
