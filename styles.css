@@ -22,15 +22,15 @@
   --yellow-dark: #a16207;
 
   /* Party colors - Republican */
-  --republican: #dc2626;
+  --republican: #ff584e;
   --republican-dark: #991b1b;
   --republican-light: #f87171;
   --republican-bg: #fef2f2;
 
   /* Party colors - Democratic */
-  --democrat: #1d4ed8;
+  --democrat: #383269;
   --democrat-dark: #1e3a8a;
-  --democrat-light: #60a5fa;
+  --democrat-light: #c8e4f6;
   --democrat-bg: #eff6ff;
 }
 
