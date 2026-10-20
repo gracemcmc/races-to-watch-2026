@@ -6,8 +6,8 @@
 # The WordPress embed loads races.json from GitHub raw content.
 # Update your username or edit DATA_URL below.
 
-USERNAME="${1:-austinbrian}"
-DATA_URL="https://raw.githubusercontent.com/$USERNAME/matchup-guide/main/races.json"
+USERNAME="${1:-gracemcmc}"
+DATA_URL="https://raw.githubusercontent.com/$USERNAME/races-to-watch-2026/main/races.json"
 
 echo "Building WordPress embed..."
 echo "GitHub username: $USERNAME"

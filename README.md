@@ -2,6 +2,8 @@
 
 An interactive guide to North Carolina's top primary elections, built for The Assembly.
 
+Below are the notes from Brian Austin from the original repo. 
+
 ## Live Site
 
 - **GitHub Pages**: https://austinbrian.github.io/26-nc-primaries-for-2026/
