@@ -66,6 +66,13 @@ function getRoleClass(role) {
 }
 
 
+function getParty(party) {
+  const partyLower = party.toLowerCase();
+  if (partyLower.includes('republican')) return 'republican';
+  if (partyLower.includes('democrat')) return 'democrat';
+  return 'republican';
+}
+
 // Get expanded view type based on current view
 function getExpandedView() {
   if (currentView === 'skim' || currentView === 'peek') return 'expanded-peruse';
@@ -82,7 +89,7 @@ function createRaceCard(race) {
       <div class="candidate">
         <div class="candidate-header">
           <span class="candidate-name">${c.name}</span>
-          <span class="candidate-role ${getRoleClass(c.role)}">${c.role}</span>
+          <span class="candidate-role ${getParty(c.party)}">${c.role}</span>
         </div>
       </div>
     `)
@@ -95,7 +102,7 @@ function createRaceCard(race) {
 
   // TODO: figure out the party display here 
   return `
-    <article class="race-card party-${partyClass} ${isHidden ? 'hidden' : ''}"
+    <article class="race-card ${isHidden ? 'hidden' : ''}"
              data-party="${race.party}"
              data-type="${race.type}"
              data-rank="${race.rank}">

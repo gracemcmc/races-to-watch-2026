@@ -792,28 +792,15 @@ h1, h2, h3, .card-title {
 }
 
 /* Party-specific role colors for deep dive */
-.view-deep-dive .race-card.party-republican .candidate-role.incumbent,
-.view-deep-dive .race-card.party-republican .candidate-role.appointed {
+
+.view-deep-dive .race-card .candidate-role.republican,
+.race-card.expanded-deep-dive .candidate-role.republican {
   background: var(--republican-dark);
 }
 
-.view-deep-dive .race-card.party-republican .candidate-role.challenger,
-.view-deep-dive .race-card.party-republican .candidate-role.candidate,
-.view-deep-dive .race-card.party-republican .candidate-role.frontrunner {
-  background: var(--republican-light);
-  color: var(--republican-dark);
-}
-
-.view-deep-dive .race-card.party-democratic .candidate-role.incumbent,
-.view-deep-dive .race-card.party-democratic .candidate-role.appointed {
+.view-deep-dive .race-card .candidate-role.democrat,
+.race-card.expanded-deep-dive .candidate-role.democrat {
   background: var(--democrat-dark);
-}
-
-.view-deep-dive .race-card.party-democratic .candidate-role.challenger,
-.view-deep-dive .race-card.party-democratic .candidate-role.candidate,
-.view-deep-dive .race-card.party-democratic .candidate-role.frontrunner {
-  background: var(--democrat-light);
-  color: var(--democrat-dark);
 }
 
 .view-deep-dive .candidate-desc {
@@ -1009,29 +996,6 @@ h1, h2, h3, .card-title {
   display: none !important;
 }
 
-.race-card.expanded-peruse.party-republican .candidate-role.incumbent,
-.race-card.expanded-peruse.party-republican .candidate-role.appointed {
-  background: var(--republican-dark);
-}
-
-.race-card.expanded-peruse.party-republican .candidate-role.challenger,
-.race-card.expanded-peruse.party-republican .candidate-role.candidate,
-.race-card.expanded-peruse.party-republican .candidate-role.frontrunner {
-  background: var(--republican-light);
-  color: var(--republican-dark);
-}
-
-.race-card.expanded-peruse.party-democratic .candidate-role.incumbent,
-.race-card.expanded-peruse.party-democratic .candidate-role.appointed {
-  background: var(--democrat-dark);
-}
-
-.race-card.expanded-peruse.party-democratic .candidate-role.challenger,
-.race-card.expanded-peruse.party-democratic .candidate-role.candidate,
-.race-card.expanded-peruse.party-democratic .candidate-role.frontrunner {
-  background: var(--democrat-light);
-  color: var(--democrat-dark);
-}
 
 .race-card.expanded-peruse .candidate-desc {
   display: none !important;
