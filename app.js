@@ -90,6 +90,7 @@ function createRaceCard(race) {
         <div class="candidate-header">
           <span class="candidate-name">${c.name}</span>
           <span class="candidate-role ${getParty(c.party)}">${c.role}</span>
+          <span class="candidate-party ${getParty(c.party)}">${c.party}</span>
         </div>
       </div>
     `)

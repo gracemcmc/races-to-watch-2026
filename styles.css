@@ -411,25 +411,6 @@ h1, h2, h3, .card-title {
   font-weight: 600;
 }
 
-.view-skim .card-party {
-  padding: 0.15rem 0.4rem;
-  border-radius: 3px;
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.view-skim .card-party.republican {
-  background: var(--republican-bg);
-  color: var(--republican);
-}
-
-.view-skim .card-party.democratic {
-  background: var(--democrat-bg);
-  color: var(--democrat);
-}
-
 .view-skim .card-type,
 .view-skim .card-location,
 .view-skim .card-candidates,
@@ -477,24 +458,6 @@ h1, h2, h3, .card-title {
   flex-wrap: wrap;
 }
 
-.view-peek .card-party {
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.view-peek .card-party.republican {
-  background: var(--republican-bg);
-  color: var(--republican);
-}
-
-.view-peek .card-party.democratic {
-  background: var(--democrat-bg);
-  color: var(--democrat);
-}
-
 .view-peek .card-type {
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -526,12 +489,14 @@ h1, h2, h3, .card-title {
   color: var(--text-muted);
 }
 
-.view-peek .card-summary,
-.view-peek .card-stakes,
-.view-peek .card-issues,
-.view-peek .card-keyfact {
-  display: none;
+.view-peek .candidate-role.democrat {
+  color: var(--democrat-dark);
 }
+
+.view-peek .candidate-role.republican {
+  color: var(--republican-dark);
+}
+
 
 /* Peruse View - Medium Detail */
 .view-peruse .race-card {
@@ -579,15 +544,6 @@ h1, h2, h3, .card-title {
   text-transform: uppercase;
 }
 
-.view-peruse .card-party.republican {
-  background: var(--republican-bg);
-  color: var(--republican);
-}
-
-.view-peruse .card-party.democratic {
-  background: var(--democrat-bg);
-  color: var(--democrat);
-}
 
 .view-peruse .card-type {
   font-size: 0.8125rem;
@@ -631,28 +587,12 @@ h1, h2, h3, .card-title {
 }
 
 /* Party-specific role colors for peruse view */
-.view-peruse .race-card.party-republican .candidate-role.incumbent,
-.view-peruse .race-card.party-republican .candidate-role.appointed {
+.view-peruse .race-card .candidate-role.republican {
   background: var(--republican-dark);
 }
 
-.view-peruse .race-card.party-republican .candidate-role.challenger,
-.view-peruse .race-card.party-republican .candidate-role.candidate,
-.view-peruse .race-card.party-republican .candidate-role.frontrunner {
-  background: var(--republican-light);
-  color: var(--republican-dark);
-}
-
-.view-peruse .race-card.party-democratic .candidate-role.incumbent,
-.view-peruse .race-card.party-democratic .candidate-role.appointed {
+.view-peruse .race-card .candidate-role.republican {
   background: var(--democrat-dark);
-}
-
-.view-peruse .race-card.party-democratic .candidate-role.challenger,
-.view-peruse .race-card.party-democratic .candidate-role.candidate,
-.view-peruse .race-card.party-democratic .candidate-role.frontrunner {
-  background: var(--democrat-light);
-  color: var(--democrat-dark);
 }
 
 .view-peruse .candidate-desc {
@@ -730,24 +670,6 @@ h1, h2, h3, .card-title {
   flex-wrap: wrap;
 }
 
-.view-deep-dive .card-party {
-  padding: 0.25rem 0.6rem;
-  border-radius: 3px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.view-deep-dive .card-party.republican {
-  background: var(--republican-bg);
-  color: var(--republican);
-}
-
-.view-deep-dive .card-party.democratic {
-  background: var(--democrat-bg);
-  color: var(--democrat);
-}
-
 .view-deep-dive .card-type {
   font-size: 0.875rem;
   color: var(--text-muted);
@@ -791,6 +713,13 @@ h1, h2, h3, .card-title {
   border-radius: 3px;
 }
 
+.view-deep-dive .candidate-party {
+  font-size: 0.6875rem;
+  color: black;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+}
+
 /* Party-specific role colors for deep dive */
 
 .view-deep-dive .race-card .candidate-role.republican,
@@ -801,6 +730,16 @@ h1, h2, h3, .card-title {
 .view-deep-dive .race-card .candidate-role.democrat,
 .race-card.expanded-deep-dive .candidate-role.democrat {
   background: var(--democrat-dark);
+}
+
+.view-deep-dive .race-card .candidate-party.republican,
+.race-card.expanded-deep-dive .candidate-party.republican {
+  background: var(--republican-light);
+}
+
+.view-deep-dive .race-card .candidate-party.democrat,
+.race-card.expanded-deep-dive .candidate-party.democrat {
+  background: var(--democrat-light);
 }
 
 .view-deep-dive .candidate-desc {
@@ -1376,10 +1315,6 @@ h1, h2, h3, .card-title {
   opacity: 0.5;
 }
 
-/* Hide results in skim view */
-.view-skim .results-section {
-  display: none;
-}
 
 /* Empty State */
 .empty-state {
