@@ -76,7 +76,7 @@ function getParty(party) {
 // Get expanded view type based on current view
 function getExpandedView() {
   if (currentView === 'skim' || currentView === 'peek') return 'expanded-peruse';
-  return 'expanded-deep-dive';
+  return 'deep-dive';
 }
 
 // Create race card HTML
@@ -86,7 +86,7 @@ function createRaceCard(race) {
 
   const candidatesHTML = race.candidates
     .map(c => `
-      <div class="candidate">
+      <div class="candidate ${getParty(c.party)}">
         <div class="candidate-header">
           <span class="candidate-name">${c.name}</span>
           <span class="candidate-role ${getParty(c.party)}">${c.role}</span>
@@ -167,9 +167,8 @@ function setFilter(filter) {
   });
 
   document.querySelectorAll('.race-card').forEach(card => {
-    const cardParty = card.dataset.party;
     const cardType = card.dataset.type;
-    const isVisible = matchesFilter({ party: cardParty, type: cardType }, filter);
+    const isVisible = matchesFilter({ type: cardType }, filter);
     card.classList.toggle('hidden', !isVisible);
   });
 }
