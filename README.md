@@ -60,7 +60,7 @@ Add this to a Custom HTML block in WordPress:
 
 ```html
 <iframe
-  src="https://austinbrian.github.io/matchup-guide/"
+  src="https://gracemcmc.github.io/races-to-watch-2026/"
   width="100%"
   height="900"
   style="border: none;">

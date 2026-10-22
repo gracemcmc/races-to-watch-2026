@@ -536,14 +536,6 @@ h1, h2, h3, .card-title {
   flex-wrap: wrap;
 }
 
-.view-peruse .card-party {
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
 
 .view-peruse .card-type {
   font-size: 0.8125rem;
@@ -586,7 +578,7 @@ h1, h2, h3, .card-title {
   border-radius: 3px;
 }
 
-.view-peruse .candidate-party {
+.view-peek .candidate-party {
   display: none;
 }
 
@@ -1201,13 +1193,22 @@ h1, h2, h3, .card-title {
   .author-tooltip {
     width: 280px;
     left: 0;
-    transform: translateX(0);
+    transform: translateX(0); }
 
-  .race-card.expanded-deep-dive {
+  .race-card.expanded.expanded-deep-dive {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "header"
+      "candidates"
+      "fulltext";}
+  
+  .race-card.expanded.expanded-peruse {
+    display: grid;
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "header"
       "candidates"
       "fulltext";}
   }
-}
+
